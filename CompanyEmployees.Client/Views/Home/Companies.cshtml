@@ -6,9 +6,12 @@
  
 <h1>Companies</h1> 
  
-<p> 
-    <a asp-action="Create">Create New</a> 
-</p> 
+@if (User.IsInRole("Administrator"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 <table class="table"> 
 <thead> 
 <tr> 
@@ -30,11 +33,14 @@
         <td> 
             @Html.DisplayFor(modelItem => item.FullAddress) 
         </td> 
-        <td> 
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) | 
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) | 
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) 
-        </td> 
+       @if (User.IsInRole("Administrator")) 
+           { 
+               <td> 
+                   @Html.ActionLink("Edit", "Edit", new {}) | 
+                   @Html.ActionLink("Details", "Details", new {}) | 
+                   @Html.ActionLink("Delete", "Delete", new {}) 
+               </td> 
+           } 
     </tr> 
 } 
 </tbody> 

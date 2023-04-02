@@ -34,7 +34,11 @@ public class TestUsers
                     Claims = new List<Claim> 
                     { 
                         new("given_name", "John"), 
-                        new("family_name", "Doe") 
+                        new("family_name", "Doe"),
+                        new("address", "John Doe's Boulevard 323"),
+                        new("role", "Administrator")   ,
+
+
                     } 
                 }, 
                 new()
@@ -45,7 +49,9 @@ public class TestUsers
                     Claims = new List<Claim> 
                     { 
                         new("given_name", "Jane"), 
-                        new("family_name", "Doe") 
+                        new("family_name", "Doe"),
+                        new("address", "Jane Doe's Avenue 214"),
+                        new("role", "Visitor") 
                     }
                 }
             };
