@@ -15,6 +15,7 @@ public class CompaniesController : ControllerBase
 	public CompaniesController(IServiceManager service) => _service = service;
 
 	[HttpGet]
+	[Authorize]
 	public async Task<IActionResult> GetCompanies()
 	{
 		var companies = await _service.CompanyService.GetAllCompaniesAsync(trackChanges: false);

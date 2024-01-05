@@ -30,7 +30,12 @@ builder.Services.AddControllers(config => {
 }).AddXmlDataContractSerializerFormatters()
   .AddCustomCSVFormatter()
   .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
-
+builder.Services.AddAuthentication("Bearer")
+.AddJwtBearer("Bearer", options =>
+	{
+		options.Authority = "https://localhost:5005";
+		options.Audience = "companyemployeeapi";
+	});
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -47,6 +52,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseCors("CorsPolicy");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
