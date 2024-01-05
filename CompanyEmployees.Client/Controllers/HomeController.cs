@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -65,15 +66,22 @@ public class HomeController : Controller
     { 
         var httpClient = _httpClientFactory.CreateClient("APIClient"); 
  
-        var response = await httpClient.GetAsync("api/companies").ConfigureAwait(false); 
- 
-        response.EnsureSuccessStatusCode(); 
- 
-        var companiesString = await response.Content.ReadAsStringAsync(); 
-        var companies = JsonSerializer.Deserialize<List<CompanyViewModel>>(companiesString, 
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true}); 
- 
-        return View(companies); 
+        var response = await httpClient.GetAsync("api/companies").ConfigureAwait(false);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var companiesString = await response.Content.ReadAsStringAsync();
+            var companies = JsonSerializer.Deserialize<List<CompanyViewModel>>(companiesString,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+
+            return View(companies);
+        }
+
+        if(response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized)
+        {
+            return RedirectToAction("AccessDenied", "Auth");
+        }
+        throw new Exception("There is a problem accessing the Companies API");
     }
 
     public IActionResult Edit()
