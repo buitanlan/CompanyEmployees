@@ -26,7 +26,8 @@ public static class Config
         {
             new("companyemployeeapi", "CompanyEmployee API")
             {
-                Scopes = {"companyemployeeapi.scope"}
+                Scopes = {"companyemployeeapi.scope"},
+                UserClaims = new List<string>{"role"}
             }
         };
 
