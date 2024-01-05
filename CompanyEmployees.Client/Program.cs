@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using CompanyEmployees.Client.Handlers;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,7 +17,7 @@ builder.Services.AddHttpClient("APIClient", client =>
     client.BaseAddress = new Uri("https://localhost:5001/"); 
     client.DefaultRequestHeaders.Clear(); 
     client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json"); 
-});
+}).AddHttpMessageHandler<BearerTokenHandler>();
 
 builder.Services.AddHttpClient("IDPClient", client => 
 { 
@@ -55,6 +56,9 @@ builder.Services.AddAuthentication(opt =>
         RoleClaimType = JwtClaimTypes.Role 
     }; 
 });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<BearerTokenHandler>();
 
 var app = builder.Build();
 
