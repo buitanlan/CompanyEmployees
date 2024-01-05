@@ -11,7 +11,8 @@ public static class Config
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
             new IdentityResources.Address(),
-            new IdentityResource("roles", "User role(s)", new List<string> { "role" })
+            new IdentityResource("roles", "User role(s)", new List<string> { "role" }),
+            new IdentityResource("country", "Your country", new List<string> { "country" })
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
@@ -44,7 +45,8 @@ public static class Config
                     IdentityServerConstants.StandardScopes.Profile,
                     IdentityServerConstants.StandardScopes.Address,
                     "roles",
-                    "companyemployeeapi.scope"
+                    "companyemployeeapi.scope",
+                    "country"
                 },
                 ClientSecrets = { new Secret("CompanyEmployeeClientSecret".Sha512()) },
                 RequirePkce = true,

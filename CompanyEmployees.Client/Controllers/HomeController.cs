@@ -28,7 +28,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Policy = "CanCreateAndModifyData")]
     public async Task<IActionResult> Privacy()
     {
         var idpClient = _httpClientFactory.CreateClient("IDPClient"); 

@@ -36,8 +36,9 @@ public class TestUsers
                         new("given_name", "John"), 
                         new("family_name", "Doe"),
                         new("address", "John Doe's Boulevard 323"),
-                        new("role", "Administrator")   ,
-                    } 
+                        new("role", "Administrator"),
+                        new("country", "USA")
+                    }
                 }, 
                 new()
                 { 
@@ -49,7 +50,8 @@ public class TestUsers
                         new("given_name", "Jane"), 
                         new("family_name", "Doe"),
                         new("address", "Jane Doe's Avenue 214"),
-                        new("role", "Visitor") 
+                        new("role", "Visitor"),
+                        new("country", "USA")
                     }
                 }
             };

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<CompanyViewModel>
+﻿@inject IAuthorizationService AuthorizationService;
+@using Microsoft.AspNetCore.Authorization
+@model IEnumerable<CompanyViewModel>
 
 @{ 
     ViewData["Title"] = "Companies"; 
@@ -33,7 +35,7 @@
         <td> 
             @Html.DisplayFor(modelItem => item.FullAddress) 
         </td> 
-       @if (User.IsInRole("Administrator")) 
+       @if ((await AuthorizationService.AuthorizeAsync(User, "CanCreateAndModifyData")).Succeeded)
            { 
                <td> 
                    @Html.ActionLink("Edit", "Edit", new {}) | 

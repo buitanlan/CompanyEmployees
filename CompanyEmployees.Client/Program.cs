@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using CompanyEmployees.Client.Handlers;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +10,16 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthorization(authOpt =>
+{
+    authOpt.AddPolicy("CanCreateAndModifyData", policy =>
+    {
+        policy.RequireClaim(ClaimTypes.Role, "Administrator");
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("country", "USA");
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -51,6 +62,8 @@ builder.Services.AddAuthentication(opt =>
     opt.Scope.Add("roles"); 
     opt.ClaimActions.MapUniqueJsonKey("role", "role");
     opt.Scope.Add("companyemployeeapi.scope");
+    opt.Scope.Add("country");
+    opt.ClaimActions.MapUniqueJsonKey("country", "country");
     opt.TokenValidationParameters = new TokenValidationParameters 
     { 
         RoleClaimType = JwtClaimTypes.Role 
