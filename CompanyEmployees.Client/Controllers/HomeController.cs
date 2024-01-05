@@ -95,8 +95,5 @@ public class HomeController : Controller
     {
         throw new NotImplementedException();
     }
-    public IActionResult AccessDenied() 
-    { 
-        return View(); 
-    } 
+
 }

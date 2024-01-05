@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyEmployees.Client.Controllers;
 
-public class AuthController : ControllerBase 
+public class AuthController : Controller
 { 
     public IActionResult Login() 
     { 
@@ -19,5 +19,10 @@ public class AuthController : ControllerBase
     { 
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme); 
         await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme); 
-    } 
+    }
+
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
 } 
