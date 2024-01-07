@@ -54,7 +54,8 @@ public static class Config
                 RequireConsent = true,
                 PostLogoutRedirectUris = new List<string> { "https://localhost:5010/signout-callback-oidc" },
                 AccessTokenLifetime = 120,
-
+                AllowOfflineAccess = true,
+                UpdateAccessTokenClaimsOnRefresh = true
             }
         };
 }

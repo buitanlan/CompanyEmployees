@@ -67,7 +67,8 @@ builder.Services.AddAuthentication(opt =>
     opt.TokenValidationParameters = new TokenValidationParameters 
     { 
         RoleClaimType = JwtClaimTypes.Role 
-    }; 
+    };
+    opt.Scope.Add("offline_access");
 });
 
 builder.Services.AddHttpContextAccessor();
