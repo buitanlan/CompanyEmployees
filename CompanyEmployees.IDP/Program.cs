@@ -1,4 +1,5 @@
 ﻿using CompanyEmployees.IDP;
+using CompanyEmployees.IDP.InitialSeed;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -18,7 +19,8 @@ try
 
     var app = builder
         .ConfigureServices(builder.Configuration)
-        .ConfigurePipeline();
+        .ConfigurePipeline()
+        .MigrateDatabase();
     
     app.Run();
 }
