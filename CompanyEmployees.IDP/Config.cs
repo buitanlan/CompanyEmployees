@@ -52,7 +52,9 @@ public static class Config
                 ClientSecrets = { new Secret("CompanyEmployeeClientSecret".Sha512()) },
                 RequirePkce = true,
                 RequireConsent = true,
-                PostLogoutRedirectUris = new List<string> { "https://localhost:5010/signout-callback-oidc" }
+                PostLogoutRedirectUris = new List<string> { "https://localhost:5010/signout-callback-oidc" },
+                AccessTokenLifetime = 120,
+
             }
         };
 }
