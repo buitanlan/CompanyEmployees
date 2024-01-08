@@ -1,4 +1,6 @@
 using System.Reflection;
+using CompanyEmployees.IDP.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -11,6 +13,11 @@ internal static class HostingExtensions
         builder.Services.AddRazorPages();
 
         var migrationAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
+
+        builder.Services.AddNpgsql<UserContext>(configuration.GetConnectionString("sqlConnection"));
+        builder.Services.AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<UserContext>()
+            .AddDefaultTokenProviders();
 
         builder.Services.AddIdentityServer(options =>
             {
@@ -27,8 +34,7 @@ internal static class HostingExtensions
             {
                 opt.ConfigureDbContext = c => c.UseNpgsql(configuration.GetConnectionString("sqlConnection"),
                     sql => sql.MigrationsAssembly(migrationAssembly));
-
-            });
+            }).AddAspNetIdentity<User>();
 
 
         return builder.Build();
