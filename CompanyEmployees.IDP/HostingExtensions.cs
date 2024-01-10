@@ -14,7 +14,8 @@ internal static class HostingExtensions
 
         var migrationAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
-        builder.Services.AddNpgsql<UserContext>(configuration.GetConnectionString("sqlConnection"));
+        builder.Services.AddNpgsql<UserContext>(configuration.GetConnectionString("identitySqlConnection"));
+
         builder.Services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<UserContext>()
             .AddDefaultTokenProviders();

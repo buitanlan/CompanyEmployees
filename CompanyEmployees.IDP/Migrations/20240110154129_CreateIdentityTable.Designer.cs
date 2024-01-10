@@ -9,10 +9,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CompanyEmployees.IDP.Migrations.IdentityServer.PersistedGrantDb
+namespace CompanyEmployees.IDP.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20240108175058_CreateIdentityTable")]
+    [Migration("20240110154129_CreateIdentityTable")]
     partial class CreateIdentityTable
     {
         /// <inheritdoc />
@@ -125,6 +125,20 @@ namespace CompanyEmployees.IDP.Migrations.IdentityServer.PersistedGrantDb
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "2c5e174e-3b0e-446f-86af-483d56fd7210",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = "a9ea0f25-b964-409f-bcce-c923266249b4",
+                            Name = "Visitor",
+                            NormalizedName = "VISITOR"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

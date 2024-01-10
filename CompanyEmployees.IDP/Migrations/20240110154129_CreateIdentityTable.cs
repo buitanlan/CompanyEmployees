@@ -4,7 +4,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CompanyEmployees.IDP.Migrations.IdentityServer.PersistedGrantDb
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace CompanyEmployees.IDP.Migrations
 {
     /// <inheritdoc />
     public partial class CreateIdentityTable : Migration
@@ -159,6 +161,15 @@ namespace CompanyEmployees.IDP.Migrations.IdentityServer.PersistedGrantDb
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2c5e174e-3b0e-446f-86af-483d56fd7210", null, "Administrator", "ADMINISTRATOR" },
+                    { "a9ea0f25-b964-409f-bcce-c923266249b4", null, "Visitor", "VISITOR" }
                 });
 
             migrationBuilder.CreateIndex(
