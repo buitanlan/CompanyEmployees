@@ -14,18 +14,20 @@ internal static class HostingExtensions
 
         var migrationAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
-        builder.Services.AddNpgsql<UserContext>(configuration.GetConnectionString("identitySqlConnection"));
-
-        builder.Services.AddIdentity<User, IdentityRole>()
-            .AddEntityFrameworkStores<UserContext>()
-            .AddDefaultTokenProviders();
+        // builder.Services.AddNpgsql<UserContext>(configuration.GetConnectionString("identitySqlConnection"));
+        //
+        // builder.Services.AddIdentity<User, IdentityRole>()
+        //     .AddEntityFrameworkStores<UserContext>()
+        //     .AddDefaultTokenProviders();
+        var connectionString = configuration.GetConnectionString("identitySqlConnection");
+        SeedUserData.EnsureSeedData(connectionString);
 
         builder.Services.AddIdentityServer(options =>
             {
                 // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
                 options.EmitStaticAudienceClaim = true;
             })
-            .AddTestUsers(TestUsers.Users)
+            // .AddTestUsers(TestUsers.Users)
             .AddConfigurationStore(opt =>
             {
                 opt.ConfigureDbContext = c => c.UseNpgsql(configuration.GetConnectionString("sqlConnection"),
