@@ -1,3 +1,4 @@
+using CompanyEmployees.IDP.Entities;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
@@ -6,6 +7,7 @@ using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,34 +15,23 @@ namespace CompanyEmployees.IDP.Pages.Login;
 
 [SecurityHeaders]
 [AllowAnonymous]
-public class Index : PageModel
+public class Index(
+    IIdentityServerInteractionService interaction,
+    IAuthenticationSchemeProvider schemeProvider,
+    IIdentityProviderStore identityProviderStore,
+    IEventService events,
+    UserManager<User> userManager,
+    SignInManager<User> signInManager,
+    TestUserStore users = null)
+    : PageModel
 {
-    private readonly TestUserStore _users;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IEventService _events;
-    private readonly IAuthenticationSchemeProvider _schemeProvider;
-    private readonly IIdentityProviderStore _identityProviderStore;
 
     public ViewModel View { get; set; }
         
     [BindProperty]
     public InputModel Input { get; set; }
-        
-    public Index(
-        IIdentityServerInteractionService interaction,
-        IAuthenticationSchemeProvider schemeProvider,
-        IIdentityProviderStore identityProviderStore,
-        IEventService events,
-        TestUserStore users = null)
-    {
-        // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
-            
-        _interaction = interaction;
-        _schemeProvider = schemeProvider;
-        _identityProviderStore = identityProviderStore;
-        _events = events;
-    }
+
+    // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
 
     public async Task<IActionResult> OnGet(string returnUrl)
     {
@@ -58,7 +49,7 @@ public class Index : PageModel
     public async Task<IActionResult> OnPost()
     {
         // check if we are in the context of an authorization request
-        var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
+        var context = await interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 
         // the user clicked the "cancel" button
         if (Input.Button != "login")
@@ -68,7 +59,7 @@ public class Index : PageModel
                 // if the user cancels, send a result back into IdentityServer as if they 
                 // denied the consent (even if this client does not require consent).
                 // this will send back an access denied OIDC error response to the client.
-                await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
+                await interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
 
                 // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
                 if (context.IsNativeClient())
@@ -78,7 +69,7 @@ public class Index : PageModel
                     return this.LoadingPage(Input.ReturnUrl);
                 }
 
-                return Redirect(context.Client.ClientUri);
+                return Redirect(Input.ReturnUrl);
             }
             // since we don't have a valid context, then we just go back to the home page
             return Redirect("~/");
@@ -86,33 +77,13 @@ public class Index : PageModel
 
         if (ModelState.IsValid)
         {
-            // validate username/password against in-memory store
-            if (_users.ValidateCredentials(Input.Username, Input.Password))
+            var result = await signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberLogin, lockoutOnFailure: true);
+            if (result.Succeeded)
             {
-                var user = _users.FindByUsername(Input.Username);
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
+                var user = await userManager.FindByNameAsync(Input.Username);
+                await events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
 
-                // only set explicit expiration here if user chooses "remember me". 
-                // otherwise we rely upon expiration configured in cookie middleware.
-                AuthenticationProperties props = null;
-                if (LoginOptions.AllowRememberLogin && Input.RememberLogin)
-                {
-                    props = new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.Add(LoginOptions.RememberMeLoginDuration)
-                    };
-                };
-
-                // issue authentication cookie with subject ID and username
-                var isuser = new IdentityServerUser(user.SubjectId)
-                {
-                    DisplayName = user.Username
-                };
-
-                await HttpContext.SignInAsync(isuser, props);
-
-                if (context != null)
+                if (context is not null)
                 {
                     if (context.IsNativeClient())
                     {
@@ -141,7 +112,8 @@ public class Index : PageModel
                 }
             }
 
-            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId:context?.Client.ClientId));
+
+            await events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId:context?.Client.ClientId));
             ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
         }
 
@@ -157,8 +129,8 @@ public class Index : PageModel
             ReturnUrl = returnUrl
         };
             
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
+        var context = await interaction.GetAuthorizationContextAsync(returnUrl);
+        if (context?.IdP != null && await schemeProvider.GetSchemeAsync(context.IdP) != null)
         {
             var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
 
@@ -178,7 +150,7 @@ public class Index : PageModel
             return;
         }
 
-        var schemes = await _schemeProvider.GetAllSchemesAsync();
+        var schemes = await schemeProvider.GetAllSchemesAsync();
 
         var providers = schemes
             .Where(x => x.DisplayName != null)
@@ -188,7 +160,7 @@ public class Index : PageModel
                 AuthenticationScheme = x.Name
             }).ToList();
 
-        var dyanmicSchemes = (await _identityProviderStore.GetAllSchemeNamesAsync())
+        var dyanmicSchemes = (await identityProviderStore.GetAllSchemeNamesAsync())
             .Where(x => x.Enabled)
             .Select(x => new ViewModel.ExternalProvider
             {
