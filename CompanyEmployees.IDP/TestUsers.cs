@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 
-using IdentityModel;
+using Duende.IdentityModel;
 using System.Security.Claims;
 using System.Text.Json;
 using Duende.IdentityServer;
@@ -24,37 +24,37 @@ public class TestUsers
                 country = "Germany"
             };
                 
-            return new List<TestUser>
-            {
+            return
+            [
                 new()
                 { 
                     SubjectId = "a9ea0f25-b964-409f-bcce-c923266249b4", 
                     Username = "John", 
                     Password = "JohnPassword", 
-                    Claims = new List<Claim> 
-                    { 
+                    Claims =
+                    [
                         new("given_name", "John"), 
                         new("family_name", "Doe"),
                         new("address", "John Doe's Boulevard 323"),
                         new("role", "Administrator"),
                         new("country", "USA")
-                    }
+                    ]
                 }, 
                 new()
                 { 
                     SubjectId = "c95ddb8c-79ec-488a-a485-fe57a1462340", 
                     Username = "Jane", 
                     Password = "JanePassword", 
-                    Claims = new List<Claim> 
-                    { 
+                    Claims =
+                    [
                         new("given_name", "Jane"), 
                         new("family_name", "Doe"),
                         new("address", "Jane Doe's Avenue 214"),
                         new("role", "Visitor"),
                         new("country", "USA")
-                    }
+                    ]
                 }
-            };
+            ];
         }
     }
 }

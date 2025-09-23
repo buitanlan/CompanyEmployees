@@ -26,8 +26,8 @@ public static class Config
         {
             new("companyemployeeapi", "CompanyEmployee API")
             {
-                Scopes = {"companyemployeeapi.scope"},
-                UserClaims = new List<string>{"role"}
+                Scopes = { "companyemployeeapi.scope" },
+                UserClaims = ["role"]
             }
         };
 
@@ -39,7 +39,7 @@ public static class Config
                 ClientName = "CompanyEmployeeClient",
                 ClientId = "companyemployeeclient",
                 AllowedGrantTypes = GrantTypes.Code,
-                RedirectUris = new List<string> { "https://localhost:5010/signin-oidc" },
+                RedirectUris = ["https://localhost:5010/signin-oidc"],
                 AllowedScopes =
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
@@ -52,7 +52,7 @@ public static class Config
                 ClientSecrets = { new Secret("CompanyEmployeeClientSecret".Sha512()) },
                 RequirePkce = true,
                 RequireConsent = true,
-                PostLogoutRedirectUris = new List<string> { "https://localhost:5010/signout-callback-oidc" },
+                PostLogoutRedirectUris = ["https://localhost:5010/signout-callback-oidc"],
                 AccessTokenLifetime = 120,
                 AllowOfflineAccess = true,
                 UpdateAccessTokenClaimsOnRefresh = true

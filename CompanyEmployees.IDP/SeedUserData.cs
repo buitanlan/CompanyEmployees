@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using CompanyEmployees.IDP.Entities;
-using IdentityModel;
+using Duende.IdentityModel;
 using Microsoft.AspNetCore.Identity;
 
 namespace CompanyEmployees.IDP;
