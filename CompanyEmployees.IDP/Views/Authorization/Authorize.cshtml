@@ -1,0 +1,20 @@
+@model CompanyEmployees.IDP.ViewModels.AuthorizeViewModel
+
+<h1>Authorization</h1>
+
+<p>Do you want to grant <strong>@Model.ApplicationName</strong> access to your data?</p>
+<p class="text-muted">Scopes requested: @Model.Scope</p>
+
+<form method="post">
+    @foreach (var parameter in Context.Request.HasFormContentType ?
+        (IEnumerable<KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>>)Context.Request.Form :
+        Context.Request.Query)
+    {
+        <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
+    }
+
+    @Html.AntiForgeryToken()
+
+    <button type="submit" name="submit.Accept" value="accept" class="btn btn-primary">Yes, Allow</button>
+    <button type="submit" name="submit.Deny" value="deny" class="btn btn-secondary">No, Do Not Allow</button>
+</form>

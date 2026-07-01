@@ -2,15 +2,19 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace CompanyEmployees.IDP.Pages.Home;
+namespace CompanyEmployees.IDP.Pages;
 
 [AllowAnonymous]
-public class Index : PageModel
+public class IndexModel : PageModel
 {
-    public string Version;
-        
+    public string Version { get; set; } = string.Empty;
+
     public void OnGet()
     {
-        Version = typeof(Duende.IdentityServer.Hosting.IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+').First();
+        Version = typeof(IndexModel).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion
+            .Split('+')
+            .FirstOrDefault() ?? "unknown";
     }
 }

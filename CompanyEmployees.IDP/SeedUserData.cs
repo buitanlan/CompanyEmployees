@@ -1,35 +1,19 @@
 ﻿using System.Security.Claims;
 using CompanyEmployees.IDP.Entities;
-using Duende.IdentityModel;
 using Microsoft.AspNetCore.Identity;
 
 namespace CompanyEmployees.IDP;
 
-public class SeedUserData
+public static class SeedUserData
 {
-    public static void EnsureSeedData(string connectionString)
+    public static async Task EnsureSeedDataAsync(IServiceProvider services)
     {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddNpgsql<UserContext>(connectionString);
-
-        services.AddIdentity<User, IdentityRole>(o =>
-            {
-                o.Password.RequireDigit = false;
-                o.Password.RequireNonAlphanumeric = false;
-            })
-            .AddEntityFrameworkStores<UserContext>()
-            .AddDefaultTokenProviders();
-
-        using var serviceProvider = services.BuildServiceProvider();
-        using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        {
-            CreateUser(scope, "John", "Doe", "John Doe's Boulevard 323", "USA", "97a3aa4a-7a89-47f3-9814-74497fb92ccb", "JohnPassword", "Administrator", "john@mail.com");
-            CreateUser(scope, "Jane", "Doe", "Jane Doe's Avenue 214", "USA", "64aca900-7bc7-4645-b291-38f1b7b5963c", "JanePassword", "Visitor", "jane@mail.com");
-        }
+        using var scope = services.CreateScope();
+        await CreateUserAsync(scope, "John", "Doe", "John Doe's Boulevard 323", "USA", "97a3aa4a-7a89-47f3-9814-74497fb92ccb", "JohnPassword", "Administrator", "john@mail.com");
+        await CreateUserAsync(scope, "Jane", "Doe", "Jane Doe's Avenue 214", "USA", "64aca900-7bc7-4645-b291-38f1b7b5963c", "JanePassword", "Visitor", "jane@mail.com");
     }
 
-    public static async void CreateUser(IServiceScope scope, string name, string lastName, string address, string country,
+    private static async Task CreateUserAsync(IServiceScope scope, string name, string lastName, string address, string country,
         string id, string password, string role, string email)
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
@@ -45,28 +29,43 @@ public class SeedUserData
             Country = country,
             Id = id
         };
+
         var result = await userManager.CreateAsync(user, password);
-        CheckResult(result);
-
-        result = await userManager.AddToRoleAsync(user, role);
-        CheckResult(result);
-
-        result = await userManager.AddClaimsAsync(user, new Claim[]
+        if (result.Succeeded || result.Errors.All(e => e.Code == "DuplicateUserName"))
         {
-            new(JwtClaimTypes.GivenName, user.FirstName),
-            new(JwtClaimTypes.FamilyName, user.LastName),
-            new(JwtClaimTypes.Role, role),
-            new(JwtClaimTypes.Address, address),
-            new("country", country)
-        });
-        CheckResult(result);
+            user = await userManager.FindByNameAsync(email) ?? user;
+        }
+        else
+        {
+            CheckResult(result);
+        }
+
+        if (!await userManager.IsInRoleAsync(user, role))
+        {
+            result = await userManager.AddToRoleAsync(user, role);
+            CheckResult(result);
+        }
+
+        var existingClaims = await userManager.GetClaimsAsync(user);
+        var desiredClaims = new[]
+        {
+            new Claim(ClaimTypes.GivenName, user.FirstName),
+            new Claim(ClaimTypes.Surname, user.LastName),
+            new Claim(ClaimTypes.Role, role),
+            new Claim(ClaimTypes.StreetAddress, address),
+            new Claim("country", country)
+        };
+
+        foreach (var claim in desiredClaims.Where(c => !existingClaims.Any(e => e.Type == c.Type && e.Value == c.Value)))
+        {
+            result = await userManager.AddClaimAsync(user, claim);
+            CheckResult(result);
+        }
     }
 
-    public static void CheckResult(IdentityResult result)
+    private static void CheckResult(IdentityResult result)
     {
         if (!result.Succeeded)
-        {
             throw new Exception(result.Errors.First().Description);
-        }
     }
 }

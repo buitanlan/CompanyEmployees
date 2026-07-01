@@ -19,10 +19,10 @@ try
 
     var app = builder
         .ConfigureServices(builder.Configuration)
-        .ConfigurePipeline()
-        .MigrateDatabase();
-    
-    app.Run();
+        .ConfigurePipeline();
+
+    await app.MigrateDatabaseAsync();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {

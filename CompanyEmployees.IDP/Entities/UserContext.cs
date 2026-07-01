@@ -10,5 +10,6 @@ public class UserContext(DbContextOptions<UserContext> options) : IdentityDbCont
     {
         base.OnModelCreating(builder);
         builder.ApplyConfiguration(new RoleConfiguration());
+        builder.UseOpenIddict();
     }
 }

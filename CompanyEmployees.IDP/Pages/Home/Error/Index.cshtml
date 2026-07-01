@@ -13,23 +13,14 @@
 
                 @if (Model.View.Error != null)
                 {
-                    <strong>
-                        <em>
-                            : @Model.View.Error.Error
-                        </em>
-                    </strong>
+                    <strong><em>: @Model.View.Error</em></strong>
 
-                    if (Model.View.Error.ErrorDescription != null)
+                    if (Model.View.ErrorDescription != null)
                     {
-                        <div>@Model.View.Error.ErrorDescription</div>
+                        <div>@Model.View.ErrorDescription</div>
                     }
                 }
             </div>
-
-            @if (Model?.View?.Error?.RequestId != null)
-            {
-                <div class="request-id">Request Id: @Model.View.Error.RequestId</div>
-            }
         </div>
     </div>
 </div>
